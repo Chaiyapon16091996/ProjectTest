@@ -17,16 +17,16 @@ const dataDropDrownGender = [
     },
 ];
 
-export default function AddUser(props) {
-    const { Save, firstName, lastName, gender, birthday, setFirstName, setLastName, setGender, setBirthday, selectFile, setSelectFile, fileName, setFileName, inputImage, handleSaveFile, setFileContents, cancle } = props
-
+export default function EditUser(props) {
+    const { Save, firstName, lastName, gender, birthday, setFirstName, setLastName, setGender, setBirthday, selectFile, setSelectFile, fileName, setFileName, inputImage, handleSaveFile, setFileContents, cancle, imgData } = props
+console.log(fileName);
     return (
         <Box >
             <Grid container>
                 <Grid item xs={12}>
                     <Typography variant="h6">Create new User</Typography>
                 </Grid>
-                <Grid item sm={4} md={4} lg={4} xs={12}>
+                <Grid item xs={4}>
                     <Box
                         border="3px dashed #bbbb"
                         width="180px"
@@ -48,21 +48,10 @@ export default function AddUser(props) {
                                     src={fileName}
                                     width="100%"
                                     height="100%"
-                                    alt="Avatar"
                                     style={{ borderRadius: "50%" }}
                                 />
                             ) : (
-                                <IconButton
-                                    color="primary"
-                                    aria-label="upload picture"
-                                    component="label"
-                                    style={{ backgroundColor: "transparent" }}
-                                    onClick={() => {
-                                        inputImage.current.click();
-                                    }}
-                                >
-                                    <PhotoCameraIcon />
-                                </IconButton>
+                                null
                             )
                         ) : (
                             <IconButton
@@ -102,32 +91,32 @@ export default function AddUser(props) {
                     }}
                         onClick={() => {
                             setFileName(null);
-                            setSelectFile(null)
+                            // setSelectFile(null)
                             setFileContents(null)
                         }}>Delete Picture</Button>
                 </Grid>
-                <Grid item sm={4} md={4} lg={4} xs={12}>
+                <Grid item xs={4}>
                     <StyledTextField
                         label="First name"
                         value={firstName}
-                        sx={{ width: { xs: 300, sm: "auto", md: "auto", lg: "auto" }, mt: { xs: 5, sm: 20, md: 20, lg: 20 }, }}
+                        sx={{ width: 450, mt: 20, }}
                         onChange={(e) => {
                             setFirstName(e.target.value);
                         }}
                     />
                 </Grid>
-                <Grid item sm={4} md={4} lg={4} xs={12}>
+                <Grid item xs={4}>
                     <StyledTextField
                         label="Last name"
                         value={lastName}
-                        sx={{ width: { xs: 300, sm: "auto", md: "auto", lg: "auto" }, mt: { xs: 2, sm: 20, md: 20, lg: 20 }, ml: { xs: "", sm: 1, md: "", lg: 1 } }}
+                        sx={{ width: 450, mt: 20, }}
                         onChange={(e) => {
                             setLastName(e.target.value);
                         }}
                     />
                 </Grid>
                 <Grid item xs={4}></Grid>
-                <Grid item sm={4} md={4} lg={4} xs={12}>
+                <Grid item xs={4}>
                     <StyledTextField
                         select
                         variant="outlined"
@@ -136,7 +125,7 @@ export default function AddUser(props) {
                         onChange={(e) => {
                             setGender(e.target.value);
                         }}
-                        sx={{ width: { xs: 300, sm: "auto", md: "auto", lg: "auto" }, mt: { xs: 2, sm: 0, md: 0, lg: 0 } }}
+                        sx={{ width: 450 }}
                     >
                         {!!dataDropDrownGender
                             ? dataDropDrownGender.map((item, index) => (
@@ -147,7 +136,7 @@ export default function AddUser(props) {
                             : []}
                     </StyledTextField>
                 </Grid>
-                <Grid item sm={4} md={4} lg={4} xs={12}>
+                <Grid item xs={4}>
 
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <StyledDatepicker
@@ -157,12 +146,11 @@ export default function AddUser(props) {
                             onChange={(newValue) => {
                                 setBirthday(newValue);
                             }}
-                            sx={{ width: { xs: 300, sm: "auto", md: "auto", lg: "auto" }, mt: { xs: 2, sm: 0, md: 0, lg: 0 }, ml: { xs: "", sm: 1, md: "", lg: 1 } }}
                         />
                     </LocalizationProvider>
                 </Grid>
                 <Grid item xs={12}>
-                    <Box sx={{ textAlign: { xs: "center", sm: "", md: "", lg: "" }, float: { xs: "", sm: "right", md: "right", lg: "right" }, m: { xs: 0, sm: 3, md: 3, lg: 0 }, mt: { xs: 3, sm: 10, md: 10, lg: 10 } }}>
+                    <Box sx={{ float: "right", m: 10 }}>
                         <Button variant='contained' sx={{
                             background: "#808080", width: 100, "&:hover": {
                                 backgroundColor: "#636363",
@@ -187,6 +175,7 @@ const StyledTextField = styled(TextField)({
 });
 
 const StyledDatepicker = styled(DatePicker)({
+    width: 450,
     margin: "auto",
     display: "flex",
 });

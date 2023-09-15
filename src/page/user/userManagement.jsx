@@ -2,14 +2,16 @@ import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { Avatar, Button, Grid, Pagination } from '@mui/material';
+import { Avatar, Button, Grid } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import ShowTabel from '../../components/tableUser/showTable';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import AddUser from '../addUser/adduser';
 import Swal from 'sweetalert2';
 import dayjs from 'dayjs';
 import { format } from 'date-fns';
+import EditUser from '../editUser/editUser';
+import UserImg from '../../img/pngwing.png'
 
 export default function UserManagement() {
     // สร้าง state สำหรับเก็บข้อมูล
@@ -19,36 +21,71 @@ export default function UserManagement() {
     const [birthday, setBirthday] = useState(dayjs(new Date()));
     const [stateChekPage, setStateChekPage] = useState(0);
 
+    // state img
+    const [selectFile, setSelectFile] = useState(null);
+    const [fileName, setFileName] = useState(null);
+    const inputImage = useRef(null);
+    const [fileContents, setFileContents] = useState(null);
+
+    // state edit img 
+    const [editSelectFile, setEditSelectFile] = useState(null);
+    const [editfileName, setEditFileName] = useState(null);
+    const [editfileContents, setEditFileContents] = useState(null);
+
+    // state edit
+    const [editFirstName, setEditFirstName] = useState("");
+    const [editLastName, setEditLastName] = useState("");
+    const [editGender, setEditGender] = useState(1);
+    const [nameBefore, setNameBefore] = useState(null);
+    const [lastNameBefore, setLastNameBefore] = useState(null);
+    const [editBirthday, setEditBirthday] = useState(dayjs(new Date()));
+
     const [userList, setUserList] = useState([{
         name: "Rattapong",
         lastname: "Sukiai",
         gender: 1,
-        birthday: "15/09/2023"
+        birthday: "2023/09/15",
+        img: ""
     }, {
         name: "Somchai",
         lastname: "Rirut",
         gender: 1,
-        birthday: "15/09/2023"
+        birthday: "2023/09/15",
+        img: ""
     }, {
         name: "datarong",
         lastname: "supee",
         gender: 1,
-        birthday: "15/09/2023"
+        birthday: "2023/09/15",
+        img: ""
     }]);
 
+
+    const handleCancle = () => {
+        setStateChekPage(0);
+        setFirstName("");
+        setLastName("");
+        setGender(1);
+        setSelectFile(null)
+        setFileContents(null)
+        setEditFirstName("");
+        setEditLastName("");
+        setEditGender(1);
+        setEditFileContents(null)
+    };
     const handlePageChange = () => {
         setStateChekPage(1);
     };
 
     const handlePageSaveAdd = async () => {
         const resultCheck = await Swal.fire({
-            title: "ต้องการบันทึกหรือไม่?",
+            title: "Do you want to save?",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#02d444",
             cancelButtonColor: "#d33",
-            confirmButtonText: "บันทึก",
-            cancelButtonText: "ยกเลิก",
+            confirmButtonText: "Save",
+            cancelButtonText: "Cancle",
         });
 
         if (resultCheck.isConfirmed) {
@@ -58,18 +95,135 @@ export default function UserManagement() {
                     name: firstName,
                     lastname: lastName,
                     gender: gender,
-                    birthday: format(new Date(birthday), "dd-MM-yyyy")
+                    birthday: format(new Date(birthday), "yyyy/MM/dd"),
+                    img: fileContents
                 }]);
                 setStateChekPage(0);
                 setFirstName("");
                 setLastName("");
-                setGender("");
+                setGender(1);
+                setSelectFile(null)
+                setFileContents(null)
             } else {
                 Swal.fire({
                     icon: "error",
-                    title: "ดำเนินการไม่สำเร็จ",
+                    title: "The operation was unsuccessful.",
                 });
             }
+        }
+    };
+
+    const handleSaveFile = () => {
+        if (selectFile) {
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                const fileContent = e.target.result;
+                setFileContents(fileContent)
+                // ทำอะไรกับไฟล์ content ที่อ่านได้ที่นี่
+            };
+
+            reader.readAsDataURL(selectFile);
+
+            Swal.fire({
+                text: "Success",
+                icon: "success",
+                showConfirmButton: false,
+                timer: 1000,
+            })
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Please select a file first.",
+            });
+        }
+    };
+
+    // FN Del
+    const removeTransaction = (
+        nameToDelete,
+        lastnameToDelete,
+        genderToDelete,
+        birthdayToDelete
+    ) => {
+        const updatedTrans = userList.filter((data) => {
+            return (
+                data.name !== nameToDelete ||
+                data.lastname !== lastnameToDelete ||
+                data.gender !== genderToDelete ||
+                data.birthday !== birthdayToDelete
+            );
+        });
+
+        setUserList(updatedTrans);
+    };
+
+
+    const handlePageEditChange = (name, lastname, gender, birthdays, img) => {
+        setEditFirstName(name)
+        setEditLastName(lastname)
+        setEditGender(gender)
+        setNameBefore(name)
+        setLastNameBefore(lastname)
+        setEditFileName(img)
+        setEditBirthday(dayjs(new Date(birthdays)));
+        setStateChekPage(2);
+    };
+
+    const handlePageSaveEdit = async () => {
+        const resultCheck = await Swal.fire({
+            title: "Do you want to save?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#02d444",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Save",
+            cancelButtonText: "Cancle",
+        });
+
+        if (resultCheck.isConfirmed) {
+
+            if (!!editFirstName && editLastName) {
+                const updatedData = userList.map(item => {
+                    if (item.name === nameBefore && item.lastname === lastNameBefore && !!editfileContents) {
+                        return { ...item, name: editFirstName, lastname: editLastName, gender: editGender, birthday: format(new Date(editBirthday), "yyyy/MM/dd"), img: editfileContents };
+                    } else if (item.name === nameBefore && item.lastname === lastNameBefore) {
+                        return { ...item, name: editFirstName, lastname: editLastName, gender: editGender, birthday: format(new Date(editBirthday), "yyyy/MM/dd") };
+                    }
+                    return item;
+                });
+                setUserList(updatedData);
+                setStateChekPage(0);
+                setEditFirstName("");
+                setEditLastName("");
+                setEditGender(1);
+                // setEditSelectFile(null)
+                setEditFileContents(null)
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "The operation was unsuccessful.",
+                });
+            }
+        }
+    };
+
+    const handleSaveFileEdit = () => {
+        if (editSelectFile) {
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                const fileContent = e.target.result;
+                setEditFileContents(fileContent)
+                // ทำอะไรกับไฟล์ content ที่อ่านได้ที่นี่
+            };
+
+            reader.readAsDataURL(editSelectFile);
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Please select a file first.",
+            });
         }
     };
 
@@ -81,7 +235,7 @@ export default function UserManagement() {
                         User Management
                     </Typography>
                     <Box sx={{ flexGrow: 1, }}>
-                        <Avatar alt="Demy Sharp" sx={{ float: "right" }} />
+                        <Avatar alt="Demy Sharp" src={UserImg} sx={{ float: "right" }} />
                     </Box>
                 </Toolbar>
             </AppBar>
@@ -95,20 +249,45 @@ export default function UserManagement() {
                             <Button variant="contained" endIcon={<AddIcon />} sx={{ float: "right", width: 80 }} onClick={handlePageChange}>Add</Button>
                         </Grid>
                         <Grid item xs={12}>
-                            <Box sx={{ p: 2 }}>
-                                <ShowTabel userList={userList} />
+                            <Box sx={{ p: 2, mt: 5 }}>
+                                <ShowTabel userList={userList} remove={removeTransaction} edit={handlePageEditChange} />
                             </Box>
                         </Grid>
                     </Grid>
-                    : <AddUser Save={handlePageSaveAdd}
+                    : stateChekPage === 1 ? <AddUser Save={handlePageSaveAdd}
                         firstName={firstName}
                         lastName={lastName}
                         gender={gender}
                         birthday={birthday}
+                        fileName={fileName}
+                        setFileName={setFileName}
+                        inputImage={inputImage}
                         setFirstName={setFirstName}
                         setLastName={setLastName}
                         setGender={setGender}
-                        setBirthday={setBirthday} />}
+                        setBirthday={setBirthday}
+                        selectFile={selectFile}
+                        setSelectFile={setSelectFile}
+                        setFileContents={setFileContents}
+                        cancle={handleCancle}
+                        handleSaveFile={handleSaveFile}
+                    /> : <EditUser Save={handlePageSaveEdit}
+                        firstName={editFirstName}
+                        lastName={editLastName}
+                        gender={editGender}
+                        birthday={editBirthday}
+                        fileName={editfileName}
+                        setFileName={setEditFileName}
+                        inputImage={inputImage}
+                        setFirstName={setEditFirstName}
+                        setLastName={setEditLastName}
+                        setGender={setEditGender}
+                        setBirthday={setEditBirthday}
+                        selectFile={editSelectFile}
+                        setSelectFile={setEditSelectFile}
+                        setFileContents={setEditFileContents}
+                        cancle={handleCancle}
+                        handleSaveFile={handleSaveFileEdit} />}
             </Box>
         </Box>
     );
